@@ -34,7 +34,7 @@ void copy_block(BYTE* block_1, BYTE* block_2) {
     return;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     srand(time(NULL));
     BYTE* enc_buf = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
     BYTE* one_block = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
@@ -46,21 +46,24 @@ int main() {
     int pass = 1;
     
     unsigned long int number_of_blocks;
-    printf("Enter the length of the message (in 64 bit-blocks): ");
-    scanf("%lu", &number_of_blocks);
+    //printf("Enter the length of the message (in 64 bit-blocks): ");
+    //scanf("%lu", &number_of_blocks);
+    number_of_blocks = atoi(argv[1]);
     unsigned long int length_of_message = number_of_blocks * BLOWFISH_BLOCK_SIZE;
     BYTE* message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* cyphertext = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* decrypted_message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
 
     int length_of_key;
-    printf("Enter the length of the key (in bytes): ");
-    scanf("%d", &length_of_key);
+    //printf("Enter the length of the key (in bytes): ");
+    //scanf("%d", &length_of_key);
+    length_of_key = atoi(argv[2]);
     BYTE* user_key = (BYTE*) calloc (length_of_key, sizeof(BYTE));
 
     int user_choice;
-    printf("Which mode? 1 - ECB, 2 - CBC, 3 - PCBC, 4 - CFB, 5 - OFB, 6 - CTR\n");
-    scanf("%d", &user_choice);
+    user_choice = atoi(argv[3]);
+    //printf("Which mode? 1 - ECB, 2 - CBC, 3 - PCBC, 4 - CFB, 5 - OFB, 6 - CTR\n");
+    //scanf("%d", &user_choice);
     int NumOfExperiments = 10000;
 
     double* key_setup_times = (double*) calloc (NumOfExperiments, sizeof(double));
