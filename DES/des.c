@@ -103,7 +103,7 @@ static const uint8_t __P[32] = {
     2 , 8 , 24, 14, 32, 27, 3 , 9 , 19, 13, 30, 6 , 22, 11, 4 , 25,
 };
 
-size_t DES(uint8_t * to, uint8_t mode, uint8_t * keys8b, uint8_t * from, size_t length);
+size_t DES(uint8_t * to, uint8_t mode, uint64_t * keys48b, uint8_t * from, size_t length);
 
 void key_expansion(uint64_t key64b, uint64_t * keys48b);
 void key_permutation_56bits_to_28bits(uint64_t block56b, uint32_t * block32b_1, uint32_t * block32b_2);
@@ -186,6 +186,13 @@ int main(void) {
             user_key[j] = rand() % 256;
         }
         
+        uint64_t keys48b[16] = {0}; // создаются 16 ключей по 48 бит
+
+        key_expansion( // расширение ключа
+            join_8bits_to_64bits(user_key),
+            keys48b
+        );
+
         struct timeval time_1, time_2, time_3;
         
         switch(user_choice) {
@@ -193,13 +200,13 @@ int main(void) {
                 gettimeofday(&time_1, NULL);
                 for (int k = 0; k < number_of_blocks; k++) {
                     extract_block(message, one_block, k);
-                    DES(enc_buf, 'E', user_key, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     insert_block(cyphertext, enc_buf, k);
                 }
                 gettimeofday(&time_2, NULL);
                 for (int k = 0; k < number_of_blocks; k++) {
                     extract_block(cyphertext, one_block, k);
-                    DES(enc_buf, 'D', user_key, one_block, 8);
+                    DES(enc_buf, 'D', keys48b, one_block, 8);
                     insert_block(decrypted_message, enc_buf, k);
                 }
                 gettimeofday(&time_3, NULL);
@@ -213,26 +220,26 @@ int main(void) {
                 gettimeofday(&time_1, NULL);
                 extract_block(message, one_block, 0);
                 xor_of_two_blocks(one_block, initialize_vector);
-                DES(enc_buf, 'E', user_key, one_block, 8);
+                DES(enc_buf, 'E', keys48b, one_block, 8);
                 insert_block(cyphertext, enc_buf, 0);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     extract_block(message, one_block, k);
                     xor_of_two_blocks(one_block, enc_buf);
-                    DES(enc_buf, 'E', user_key, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     insert_block(cyphertext, enc_buf, k);
                 }
                 
                 gettimeofday(&time_2, NULL);
                 
                 extract_block(cyphertext, feedback, 0);
-                DES(enc_buf, 'D', user_key, feedback, 8);
+                DES(enc_buf, 'D', keys48b, feedback, 8);
                 xor_of_two_blocks(enc_buf, initialize_vector);
                 insert_block(decrypted_message, enc_buf, 0);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     extract_block(cyphertext, tmp_buf, k);
-                    DES(enc_buf, 'D', user_key, tmp_buf, 8);
+                    DES(enc_buf, 'D', keys48b, tmp_buf, 8);
                     xor_of_two_blocks(enc_buf, feedback);
                     copy_block(feedback, tmp_buf);
                     insert_block(decrypted_message, enc_buf, k);
@@ -250,14 +257,14 @@ int main(void) {
                 extract_block(message, one_block, 0);
                 copy_block(feedback, one_block);
                 xor_of_two_blocks(one_block, initialize_vector);
-                DES(enc_buf, 'E', user_key, one_block, 8);
+                DES(enc_buf, 'E', keys48b, one_block, 8);
                 insert_block(cyphertext, enc_buf, 0);
                 xor_of_two_blocks(feedback, enc_buf);
                 for (int k = 1; k < number_of_blocks; k++) {
                     extract_block(message, one_block, k);
                     copy_block(tmp_buf, one_block);
                     xor_of_two_blocks(one_block, feedback);
-                    DES(enc_buf, 'E', user_key, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     insert_block(cyphertext, enc_buf, k);
                     xor_of_two_blocks(tmp_buf, enc_buf);
                     copy_block(feedback, tmp_buf);
@@ -267,14 +274,14 @@ int main(void) {
 
                 extract_block(cyphertext, one_block, 0);
                 copy_block(feedback, one_block);
-                DES(enc_buf, 'D', user_key, one_block, 8);
+                DES(enc_buf, 'D', keys48b, one_block, 8);
                 xor_of_two_blocks(enc_buf, initialize_vector);
                 insert_block(decrypted_message, enc_buf, 0);
                 xor_of_two_blocks(feedback, enc_buf);
                 for (int k = 1; k < number_of_blocks; k++) {
                     extract_block(cyphertext, one_block, k);
                     copy_block(tmp_buf, one_block);
-                    DES(enc_buf, 'D', user_key, one_block, 8);
+                    DES(enc_buf, 'D', keys48b, one_block, 8);
                     xor_of_two_blocks(enc_buf, feedback);
                     insert_block(decrypted_message, enc_buf, k);
                     xor_of_two_blocks(tmp_buf, enc_buf);
@@ -292,12 +299,12 @@ int main(void) {
 
                 gettimeofday(&time_1, NULL);
 
-                DES(enc_buf, 'E', user_key, initialize_vector, 8);
+                DES(enc_buf, 'E', keys48b, initialize_vector, 8);
                 extract_block(message, one_block, 0);
                 xor_of_two_blocks(one_block, enc_buf);
                 insert_block(cyphertext, one_block, 0);
                 for (int k = 1; k < number_of_blocks; k++) {
-                    DES(enc_buf, 'E', user_key, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     extract_block(message, one_block, k);
                     xor_of_two_blocks(one_block, enc_buf);
                     insert_block(cyphertext, one_block, k);
@@ -305,12 +312,12 @@ int main(void) {
 
                 gettimeofday(&time_2, NULL);
                 
-                DES(enc_buf, 'E', user_key, initialize_vector, 8);
+                DES(enc_buf, 'E', keys48b, initialize_vector, 8);
                 extract_block(cyphertext, one_block, 0);
                 xor_of_two_blocks(enc_buf, one_block);
                 insert_block(decrypted_message, enc_buf, 0);
                 for (int k = 1; k < number_of_blocks; k++) {
-                    DES(enc_buf, 'E', user_key, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     extract_block(cyphertext, one_block, k);
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(decrypted_message, enc_buf, k);
@@ -326,13 +333,13 @@ int main(void) {
                 
                 gettimeofday(&time_1, NULL);
 
-                DES(enc_buf, 'E', user_key, initialize_vector, 8);
+                DES(enc_buf, 'E', keys48b, initialize_vector, 8);
                 copy_block(feedback, enc_buf);
                 extract_block(message, one_block, 0);
                 xor_of_two_blocks(enc_buf, one_block);
                 insert_block(cyphertext, enc_buf, 0);
                 for (int k = 1; k < number_of_blocks; k++) {
-                    DES(enc_buf, 'E', user_key, feedback, 8);
+                    DES(enc_buf, 'E', keys48b, feedback, 8);
                     copy_block(feedback, enc_buf);
                     extract_block(message, one_block, k);
                     xor_of_two_blocks(enc_buf, one_block);
@@ -341,13 +348,13 @@ int main(void) {
                 
                 gettimeofday(&time_2, NULL);
                 
-                DES(enc_buf, 'E', user_key, initialize_vector, 8);
+                DES(enc_buf, 'E', keys48b, initialize_vector, 8);
                 copy_block(feedback, enc_buf);
                 extract_block(cyphertext, one_block, 0);
                 xor_of_two_blocks(enc_buf, one_block);
                 insert_block(decrypted_message, enc_buf, 0);
                 for (int k = 1; k < number_of_blocks; k++) {
-                    DES(enc_buf, 'E', user_key, feedback, 8);
+                    DES(enc_buf, 'E', keys48b, feedback, 8);
                     copy_block(feedback, enc_buf);
                     extract_block(cyphertext, one_block, k);
                     xor_of_two_blocks(enc_buf, one_block);
@@ -367,7 +374,7 @@ int main(void) {
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[8 - 2] = k / 256;
                     counter[8 - 1] = k % 256;
-                    DES(enc_buf, 'E', user_key, counter, 8);
+                    DES(enc_buf, 'E', keys48b, counter, 8);
                     extract_block(message, one_block, k);
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(cyphertext, enc_buf, k);
@@ -378,7 +385,7 @@ int main(void) {
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[8 - 2] = k / 256;
                     counter[8 - 1] = k % 256;
-                    DES(enc_buf, 'E', user_key, counter, 8);
+                    DES(enc_buf, 'E', keys48b, counter, 8);
                     extract_block(cyphertext, one_block, k);
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(decrypted_message, enc_buf, k);
@@ -446,16 +453,16 @@ int main(void) {
     return 0;
 }
 
-size_t DES(uint8_t * to, uint8_t mode, uint8_t * keys8b, uint8_t * from, size_t length) {
+size_t DES(uint8_t * to, uint8_t mode, uint64_t * keys48b, uint8_t * from, size_t length) {
     length = length % 8 == 0 ? length : length + (8 - (length % 8)); // выравние длины ключа под блок 8 байт
     
-    uint64_t keys48b[16] = {0}; // создаются 16 ключей по 48 бит
+    //uint64_t keys48b[16] = {0}; // создаются 16 ключей по 48 бит
     uint32_t N1, N2; // левый и правые блоки соответственно
 
-    key_expansion( // расширение ключа
+    /*key_expansion( // расширение ключа
         join_8bits_to_64bits(keys8b), 
         keys48b
-    );
+    );*/
 
     for (size_t i = 0; i < length; i += 8) {
         split_64bits_to_32bits( // сливаем 8-байтовый блок в один 64-битный блок

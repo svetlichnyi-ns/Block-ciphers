@@ -5,51 +5,51 @@ NumOfBlocks = [pow(10, i + 1) for i in range(3)]
 
 # ECB (1)
 
-ECB_encryption = np.array([0.081832, 0.755412, 7.509637])
-ECB_decryption = np.array([0.081749, 0.754958, 7.500610])
+ECB_encryption = np.array([0.057399, 0.552944, 5.352524])
+ECB_decryption = np.array([0.057365, 0.551652, 5.328100])
 
-ECB_encryption_std = np.array([0.012183, 0.026151, 0.254769])
-ECB_decryption_std = np.array([0.011849, 0.025180, 0.177836])
+ECB_encryption_std = np.array([0.005487, 0.112644, 0.735063])
+ECB_decryption_std = np.array([0.005396, 0.113515, 0.709034])
 
 # CBC (2)
 
-CBC_encryption = np.array([0.089082, 0.857085, 8.479485])
-CBC_decryption = np.array([0.089053, 0.860029, 8.515597])
+CBC_encryption = np.array([0.058923, 0.538595, 5.194137])
+CBC_decryption = np.array([0.059031, 0.539035, 5.219954])
 
-CBC_encryption_std = np.array([0.026347, 0.239483, 1.608684])
-CBC_decryption_std = np.array([0.025638, 0.241172, 1.607775])
+CBC_encryption_std = np.array([0.009153, 0.088239, 0.380838])
+CBC_decryption_std = np.array([0.010136, 0.083961, 0.350033])
 
 # PCBC (3)
 
-PCBC_encryption = np.array([0.093276, 0.877241, 8.654829])
-PCBC_decryption = np.array([0.093167, 0.877875, 8.658609])
+PCBC_encryption = np.array([0.059292, 0.532469, 5.484848])
+PCBC_decryption = np.array([0.058972, 0.530236, 5.474984])
 
-PCBC_encryption_std = np.array([0.031211, 0.256998, 1.672714])
-PCBC_decryption_std = np.array([0.030999, 0.253920, 1.637694])
+PCBC_encryption_std = np.array([0.010031, 0.054795, 0.844884])
+PCBC_decryption_std = np.array([0.009853, 0.057040, 0.845736])
 
 # CFB (4)
 
-CFB_encryption = np.array([0.088713, 0.880506, 8.453465])
-CFB_decryption = np.array([0.088544, 0.879843, 8.508793])
+CFB_encryption = np.array([0.057238, 0.544991, 5.416663])
+CFB_decryption = np.array([0.057234, 0.544128, 5.410549])
 
-CFB_encryption_std = np.array([0.025634, 0.278133, 1.566999])
-CFB_decryption_std = np.array([0.025157, 0.263218, 1.660604])
+CFB_encryption_std = np.array([0.010095, 0.101883, 0.810590])
+CFB_decryption_std = np.array([0.009900, 0.100705, 0.791703])
 
 # OFB (5)
 
-OFB_encryption = np.array([0.087837, 0.878865, 8.638903])
-OFB_decryption = np.array([0.087913, 0.879435, 8.627442])
+OFB_encryption = np.array([0.058239, 0.524647, 5.352304])
+OFB_decryption = np.array([0.058405, 0.526437, 5.348848])
 
-OFB_encryption_std = np.array([0.025665, 0.242433, 1.668572])
-OFB_decryption_std = np.array([0.027389, 0.245298, 1.616948])
+OFB_encryption_std = np.array([0.009481, 0.032734, 0.763953])
+OFB_decryption_std = np.array([0.009505, 0.033434, 0.708635])
 
 # CTR (6)
 
-CTR_encryption = np.array([0.088141, 0.859550, 8.672700])
-CTR_decryption = np.array([0.088028, 0.858267, 8.689559])
+CTR_encryption = np.array([0.057531, 0.544885, 5.466048])
+CTR_decryption = np.array([0.057411, 0.544955, 5.458344])
 
-CTR_encryption_std = np.array([0.024825, 0.205662, 1.684348])
-CTR_decryption_std = np.array([0.023391, 0.205526, 1.708839])
+CTR_encryption_std = np.array([0.007034, 0.104830, 0.882041])
+CTR_decryption_std = np.array([0.007046, 0.103829, 0.867002])
 
 plt.title("Encryption, 10000 экспериментов", size=32)
 plt.xlabel('Длина сообщения (в 64-битных блоках)', size=28)
