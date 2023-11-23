@@ -3,6 +3,7 @@
 #include <memory.h>
 #include <math.h>
 #include <time.h>
+#include <sys/time.h>
 #include "blowfish.h"
 
 void extract_block(BYTE* message, BYTE* block, int number_of_block) {
@@ -62,9 +63,9 @@ int main() {
     scanf("%d", &user_choice);
     int NumOfExperiments = 10000;
 
-    clock_t* key_setup_times = (clock_t*) calloc (NumOfExperiments, sizeof(clock_t));
-    clock_t* encryption_times = (clock_t*) calloc (NumOfExperiments, sizeof(clock_t));
-    clock_t* decryption_times = (clock_t*) calloc (NumOfExperiments, sizeof(clock_t));
+    double* key_setup_times = (double*) calloc (NumOfExperiments, sizeof(double));
+    double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
+    double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
 
     for (int i = 0; i < NumOfExperiments; i++) {
         for (int j = 0; j < length_of_message; j++) {
@@ -73,34 +74,35 @@ int main() {
         for (int j = 0; j < length_of_key; j++) {
             user_key[j] = rand() % 256;
         }
-        clock_t time_1 = clock(); // START OF KEY SETUP
-        blowfish_key_setup(user_key, &key, length_of_key);
-        clock_t time_2 = clock(); // END OF KEY SETUP
 
-        clock_t time_3, time_4, time_5;
+        struct timeval time_1, time_2, time_3, time_4, time_5;
+        
+        gettimeofday(&time_1, NULL); // START OF KEY SETUP
+        blowfish_key_setup(user_key, &key, length_of_key);
+        gettimeofday(&time_2, NULL); // END OF KEY SETUP
 
         switch (user_choice) {
             case 1: // ECB
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 for (int k = 0; k < number_of_blocks; k++) {
                     extract_block(message, one_block, k);
                     blowfish_encrypt(one_block, enc_buf, &key);
                     insert_block(cyphertext, enc_buf, k);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 for (int k = 0; k < number_of_blocks; k++) {
                     extract_block(cyphertext, one_block, k);
                     blowfish_decrypt(one_block, enc_buf, &key);
                     insert_block(decrypted_message, enc_buf, k);
                 }
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 2: // CBC
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
 
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 extract_block(message, one_block, 0);
                 xor_of_two_blocks(one_block, initialize_vector);
                 blowfish_encrypt(one_block, enc_buf, &key);
@@ -112,7 +114,8 @@ int main() {
                     blowfish_encrypt(one_block, enc_buf, &key);
                     insert_block(cyphertext, enc_buf, k);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 
                 extract_block(cyphertext, feedback, 0);
                 blowfish_decrypt(feedback, enc_buf, &key);
@@ -127,13 +130,13 @@ int main() {
                     insert_block(decrypted_message, enc_buf, k);
                 }
 
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 3: // PCBC
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 extract_block(message, one_block, 0);
                 copy_block(feedback, one_block);
                 xor_of_two_blocks(one_block, initialize_vector);
@@ -149,7 +152,7 @@ int main() {
                     xor_of_two_blocks(tmp_buf, enc_buf);
                     copy_block(feedback, tmp_buf);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 extract_block(cyphertext, one_block, 0);
                 copy_block(feedback, one_block);
                 blowfish_decrypt(one_block, enc_buf, &key);
@@ -165,13 +168,13 @@ int main() {
                     xor_of_two_blocks(tmp_buf, enc_buf);
                     copy_block(feedback, tmp_buf);
                 }
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 4: // CFB
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
                 extract_block(message, one_block, 0);
                 xor_of_two_blocks(one_block, enc_buf);
@@ -182,7 +185,7 @@ int main() {
                     xor_of_two_blocks(one_block, enc_buf);
                     insert_block(cyphertext, one_block, k);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
                 extract_block(cyphertext, one_block, 0);
                 xor_of_two_blocks(enc_buf, one_block);
@@ -193,13 +196,13 @@ int main() {
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(decrypted_message, enc_buf, k);
                 }
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 5: // OFB
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
                 copy_block(feedback, enc_buf);
                 extract_block(message, one_block, 0);
@@ -212,7 +215,7 @@ int main() {
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(cyphertext, enc_buf, k);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
                 copy_block(feedback, enc_buf);
                 extract_block(cyphertext, one_block, 0);
@@ -225,13 +228,13 @@ int main() {
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(decrypted_message, enc_buf, k);
                 }
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 6: // CTR
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE - 2; j++) { // the initialization of a counter
                     counter[j] = rand() % 256;
                 }
-                time_3 = clock(); // START OF ENCRYPTION
+                gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[BLOWFISH_BLOCK_SIZE - 2] = k / 256;
                     counter[BLOWFISH_BLOCK_SIZE - 1] = k % 256;
@@ -240,7 +243,7 @@ int main() {
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(cyphertext, enc_buf, k);
                 }
-                time_4 = clock(); // END OF ENCRYPTION and START OF DECRYPTION
+                gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[BLOWFISH_BLOCK_SIZE - 2] = k / 256;
                     counter[BLOWFISH_BLOCK_SIZE - 1] = k % 256;
@@ -249,7 +252,7 @@ int main() {
                     xor_of_two_blocks(enc_buf, one_block);
                     insert_block(decrypted_message, enc_buf, k);
                 }
-                time_5 = clock(); // END OF DECRYPTION
+                gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             default:
                 printf("Error! This mode was not found!\n");
@@ -258,27 +261,27 @@ int main() {
 
         // CHECK THE RESULTS
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
-    
-        key_setup_times[i] = (int) pow(10, 9) * (time_2 - time_1) / CLOCKS_PER_SEC;
-        encryption_times[i] = (int) pow(10, 9) * (time_4 - time_3) / CLOCKS_PER_SEC;
-        decryption_times[i] = (int) pow(10, 9) * (time_5 - time_4) / CLOCKS_PER_SEC;
+
+        key_setup_times[i] = ((time_2.tv_sec - time_1.tv_sec) * 1000000 + time_2.tv_usec - time_1.tv_usec) / 1000.0;
+        encryption_times[i] = ((time_4.tv_sec - time_3.tv_sec) * 1000000 + time_4.tv_usec - time_3.tv_usec) / 1000.0;
+        decryption_times[i] = ((time_5.tv_sec - time_4.tv_sec) * 1000000 + time_5.tv_usec - time_4.tv_usec) / 1000.0;
     }
 
-    clock_t key_setup_total_time = 0;
-    clock_t encryption_total_time = 0;
-    clock_t decryption_total_time = 0;
+    double key_setup_total_time = 0;
+    double encryption_total_time = 0;
+    double decryption_total_time = 0;
     for (int k = 0; k < NumOfExperiments; k++) {
         key_setup_total_time += key_setup_times[k];
         encryption_total_time += encryption_times[k];
         decryption_total_time += decryption_times[k];
     }
-    clock_t key_setup_mean_time = key_setup_total_time / NumOfExperiments;
-    clock_t encryption_mean_time = encryption_total_time / NumOfExperiments;
-    clock_t decryption_mean_time = decryption_total_time / NumOfExperiments;
+    double key_setup_mean_time = key_setup_total_time / NumOfExperiments;
+    double encryption_mean_time = encryption_total_time / NumOfExperiments;
+    double decryption_mean_time = decryption_total_time / NumOfExperiments;
     
-    clock_t sum_key_setup = 0;
-    clock_t sum_encryption = 0;
-    clock_t sum_decryption = 0;
+    double sum_key_setup = 0;
+    double sum_encryption = 0;
+    double sum_decryption = 0;
 
     for (int k = 0; k < NumOfExperiments; k++) {
         sum_key_setup += pow(key_setup_times[k] - key_setup_mean_time, 2);
@@ -286,14 +289,14 @@ int main() {
         sum_decryption += pow(decryption_times[k] - decryption_mean_time, 2);
     }
 
-    long double key_setup_std = sqrtl((long double) sum_key_setup / (NumOfExperiments - 1));
-    long double encryption_std = sqrtl((long double) sum_encryption / (NumOfExperiments - 1));
-    long double decryption_std = sqrtl((long double) sum_decryption / (NumOfExperiments - 1));
+    double key_setup_std = sqrt(sum_key_setup / (NumOfExperiments - 1));
+    double encryption_std = sqrt(sum_encryption / (NumOfExperiments - 1));
+    double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
     // PRINT THE RESULTS
-    printf("\nKey setup: %ld ± %Lf (ns)\n", key_setup_mean_time, key_setup_std);
-    printf("Encryption: %ld ± %Lf (ns)\n", encryption_mean_time, encryption_std);
-    printf("Decryption: %ld ± %Lf (ns)\n", decryption_mean_time, decryption_std);
+    printf("\nKey setup: %f ± %f (milliseconds)\n", key_setup_mean_time, key_setup_std);
+    printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
+    printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
 
     // CHECK THE RESULTS
     printf("PASS: %d\n", pass);
