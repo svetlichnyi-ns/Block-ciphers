@@ -6,30 +6,9 @@
 #include <sys/time.h>
 #include "blowfish.h"
 
-void extract_block(BYTE* message, BYTE* block, int number_of_block) {
-    for (int k = 0; k < BLOWFISH_BLOCK_SIZE; k++) {
-        block[k] = message[BLOWFISH_BLOCK_SIZE * number_of_block + k];
-    }
-    return;
-}
-
-void insert_block(BYTE* cyphertext, BYTE* block, int number_of_block) {
-    for (int k = 0; k < BLOWFISH_BLOCK_SIZE; k++) {
-        cyphertext[BLOWFISH_BLOCK_SIZE * number_of_block + k] = block[k];
-    }
-    return;
-}
-
 void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
     for (int i = 0; i < BLOWFISH_BLOCK_SIZE; i++) {
         block_1[i] ^= block_2[i];
-    }
-    return;
-}
-
-void copy_block(BYTE* block_1, BYTE* block_2) {
-    for (int i = 0; i < BLOWFISH_BLOCK_SIZE; i++) {
-        block_1[i] = block_2[i];
     }
     return;
 }
@@ -87,17 +66,21 @@ int main(int argc, char* argv[]) {
         switch (user_choice) {
             case 1: // ECB
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
+                
                 for (int k = 0; k < number_of_blocks; k++) {
-                    extract_block(message, one_block, k);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     blowfish_encrypt(one_block, enc_buf, &key);
-                    insert_block(cyphertext, enc_buf, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
+                
                 for (int k = 0; k < number_of_blocks; k++) {
-                    extract_block(cyphertext, one_block, k);
+                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     blowfish_decrypt(one_block, enc_buf, &key);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 break;
             case 2: // CBC
@@ -106,31 +89,32 @@ int main(int argc, char* argv[]) {
                 }
 
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
-                extract_block(message, one_block, 0);
+                
+                memcpy(one_block, &message[0], BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(one_block, initialize_vector);
                 blowfish_encrypt(one_block, enc_buf, &key);
-                insert_block(cyphertext, enc_buf, 0);
-
+                memcpy(&cyphertext[0], enc_buf, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
-                    extract_block(message, one_block, k);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(one_block, enc_buf);
                     blowfish_encrypt(one_block, enc_buf, &key);
-                    insert_block(cyphertext, enc_buf, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
                 
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 
-                extract_block(cyphertext, feedback, 0);
+                memcpy(feedback, &cyphertext[0], BLOWFISH_BLOCK_SIZE);
                 blowfish_decrypt(feedback, enc_buf, &key);
                 xor_of_two_blocks(enc_buf, initialize_vector);
-                insert_block(decrypted_message, enc_buf, 0);
-
+                memcpy(&decrypted_message[0], enc_buf, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
-                    extract_block(cyphertext, tmp_buf, k);
+                    memcpy(tmp_buf, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     blowfish_decrypt(tmp_buf, enc_buf, &key);
                     xor_of_two_blocks(enc_buf, feedback);
-                    copy_block(feedback, tmp_buf);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(feedback, tmp_buf, BLOWFISH_BLOCK_SIZE);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
 
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
@@ -139,123 +123,153 @@ int main(int argc, char* argv[]) {
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
+
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
-                extract_block(message, one_block, 0);
-                copy_block(feedback, one_block);
+
+                memcpy(one_block, &message[0], BLOWFISH_BLOCK_SIZE);
+                memcpy(feedback, one_block, BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(one_block, initialize_vector);
                 blowfish_encrypt(one_block, enc_buf, &key);
-                insert_block(cyphertext, enc_buf, 0);
+                memcpy(&cyphertext[0], enc_buf, BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(feedback, enc_buf);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
-                    extract_block(message, one_block, k);
-                    copy_block(tmp_buf, one_block);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
+                    memcpy(tmp_buf, one_block, BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(one_block, feedback);
                     blowfish_encrypt(one_block, enc_buf, &key);
-                    insert_block(cyphertext, enc_buf, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(tmp_buf, enc_buf);
-                    copy_block(feedback, tmp_buf);
+                    memcpy(feedback, tmp_buf, BLOWFISH_BLOCK_SIZE);
                 }
+                
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
-                extract_block(cyphertext, one_block, 0);
-                copy_block(feedback, one_block);
+                
+                memcpy(one_block, &cyphertext[0], BLOWFISH_BLOCK_SIZE);
+                memcpy(feedback, one_block, BLOWFISH_BLOCK_SIZE);
                 blowfish_decrypt(one_block, enc_buf, &key);
                 xor_of_two_blocks(enc_buf, initialize_vector);
-                insert_block(decrypted_message, enc_buf, 0);
+                memcpy(&decrypted_message[0], enc_buf, BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(feedback, enc_buf);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
-                    extract_block(cyphertext, one_block, k);
-                    copy_block(tmp_buf, one_block);
+                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
+                    memcpy(tmp_buf, one_block, BLOWFISH_BLOCK_SIZE);
                     blowfish_decrypt(one_block, enc_buf, &key);
                     xor_of_two_blocks(enc_buf, feedback);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(tmp_buf, enc_buf);
-                    copy_block(feedback, tmp_buf);
+                    memcpy(feedback, tmp_buf, BLOWFISH_BLOCK_SIZE);
                 }
+                
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+                
                 break;
             case 4: // CFB
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
+                
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
+                
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
-                extract_block(message, one_block, 0);
+                memcpy(one_block, &message[0], BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(one_block, enc_buf);
-                insert_block(cyphertext, one_block, 0);
+                memcpy(&cyphertext[0], one_block, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
                     blowfish_encrypt(one_block, enc_buf, &key);
-                    extract_block(message, one_block, k);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(one_block, enc_buf);
-                    insert_block(cyphertext, one_block, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], one_block, BLOWFISH_BLOCK_SIZE);
                 }
+                
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
+                
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
-                extract_block(cyphertext, one_block, 0);
+                memcpy(one_block, &cyphertext[0], BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(enc_buf, one_block);
-                insert_block(decrypted_message, enc_buf, 0);
+                memcpy(&decrypted_message[0], enc_buf, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
                     blowfish_encrypt(one_block, enc_buf, &key);
-                    extract_block(cyphertext, one_block, k);
+                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, one_block);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+
                 break;
             case 5: // OFB
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
+                
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
+                
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
-                copy_block(feedback, enc_buf);
-                extract_block(message, one_block, 0);
+                memcpy(feedback, enc_buf, BLOWFISH_BLOCK_SIZE);
+                memcpy(one_block, &message[0], BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(enc_buf, one_block);
-                insert_block(cyphertext, enc_buf, 0);
+                memcpy(&cyphertext[0], enc_buf, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
                     blowfish_encrypt(feedback, enc_buf, &key);
-                    copy_block(feedback, enc_buf);
-                    extract_block(message, one_block, k);
+                    memcpy(feedback, enc_buf, BLOWFISH_BLOCK_SIZE);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, one_block);
-                    insert_block(cyphertext, enc_buf, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+                
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
+                
                 blowfish_encrypt(initialize_vector, enc_buf, &key);
-                copy_block(feedback, enc_buf);
-                extract_block(cyphertext, one_block, 0);
+                memcpy(feedback, enc_buf, BLOWFISH_BLOCK_SIZE);
+                memcpy(one_block, &cyphertext[0], BLOWFISH_BLOCK_SIZE);
                 xor_of_two_blocks(enc_buf, one_block);
-                insert_block(decrypted_message, enc_buf, 0);
+                memcpy(&decrypted_message[0], enc_buf, BLOWFISH_BLOCK_SIZE);
+                
                 for (int k = 1; k < number_of_blocks; k++) {
                     blowfish_encrypt(feedback, enc_buf, &key);
-                    copy_block(feedback, enc_buf);
-                    extract_block(cyphertext, one_block, k);
+                    memcpy(feedback, enc_buf, BLOWFISH_BLOCK_SIZE);
+                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, one_block);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+                
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+                
                 break;
             case 6: // CTR
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE - 2; j++) { // the initialization of a counter
                     counter[j] = rand() % 256;
                 }
+                
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
+                
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[BLOWFISH_BLOCK_SIZE - 2] = k / 256;
                     counter[BLOWFISH_BLOCK_SIZE - 1] = k % 256;
                     blowfish_encrypt(counter, enc_buf, &key);
-                    extract_block(message, one_block, k);
+                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, one_block);
-                    insert_block(cyphertext, enc_buf, k);
+                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
+                
                 for (int k = 0; k < number_of_blocks; k++) {
                     counter[BLOWFISH_BLOCK_SIZE - 2] = k / 256;
                     counter[BLOWFISH_BLOCK_SIZE - 1] = k % 256;
                     blowfish_encrypt(counter, enc_buf, &key);
-                    extract_block(cyphertext, one_block, k);
+                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, one_block);
-                    insert_block(decrypted_message, enc_buf, k);
+                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
                 }
+
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+                
                 break;
             default:
                 printf("Error! This mode was not found!\n");
