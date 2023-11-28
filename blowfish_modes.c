@@ -68,17 +68,13 @@ int main(int argc, char* argv[]) {
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    memcpy(one_block, &message[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
-                    blowfish_encrypt(one_block, enc_buf, &key);
-                    memcpy(&cyphertext[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
+                    blowfish_encrypt(&message[k * BLOWFISH_BLOCK_SIZE], &cyphertext[k * BLOWFISH_BLOCK_SIZE], &key);
                 }
 
                 gettimeofday(&time_4, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    memcpy(one_block, &cyphertext[k * BLOWFISH_BLOCK_SIZE], BLOWFISH_BLOCK_SIZE);
-                    blowfish_decrypt(one_block, enc_buf, &key);
-                    memcpy(&decrypted_message[k * BLOWFISH_BLOCK_SIZE], enc_buf, BLOWFISH_BLOCK_SIZE);
+                    blowfish_decrypt(&cyphertext[k * BLOWFISH_BLOCK_SIZE], &decrypted_message[k * BLOWFISH_BLOCK_SIZE], &key);
                 }
 
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
