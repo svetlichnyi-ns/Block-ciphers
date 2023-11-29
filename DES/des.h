@@ -7,8 +7,10 @@
 #define BUFF_SIZE 1024
 
 typedef struct {
-    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
 } KPI;
+
+void DES_time_performance(unsigned long int number_of_blocks, int user_choice, int NumOfExperiments, KPI* DES_results);
 
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;

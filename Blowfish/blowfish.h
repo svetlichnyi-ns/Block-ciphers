@@ -25,8 +25,10 @@ typedef struct {
 } BLOWFISH_KEY;
 
 typedef struct {
-    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
 } KPI;
+
+void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of_key, int user_choice, int NumOfExperiments, KPI* Blowfish_results);
 
 /*********************** FUNCTION DECLARATIONS **********************/
 void blowfish_key_setup(const BYTE user_key[], BLOWFISH_KEY *keystruct, size_t len);

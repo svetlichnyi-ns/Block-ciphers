@@ -7,7 +7,10 @@
 #include <sys/time.h>
 #include <time.h>
 
-int main(int argc, char* argv[]) {
+void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2);
+
+void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
+                          int NumOfExperiments, KPI* DES_results) {
 
     srand(0);
 
@@ -20,8 +23,6 @@ int main(int argc, char* argv[]) {
 
     int pass = 1;
 
-    unsigned long int number_of_blocks;
-    number_of_blocks = atoi(argv[1]);
     unsigned long int length_of_message = number_of_blocks * DES_BLOCK_SIZE;
 
     uint8_t* message = (uint8_t*) calloc (length_of_message, sizeof(uint8_t));
@@ -30,11 +31,6 @@ int main(int argc, char* argv[]) {
 
     int length_of_key = DES_BLOCK_SIZE;
     uint8_t user_key[DES_BLOCK_SIZE];
-
-    int user_choice;
-    user_choice = atoi(argv[2]);
-
-    int NumOfExperiments = (int) 1e3;
 
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
@@ -270,7 +266,7 @@ int main(int argc, char* argv[]) {
 
             default:
                 printf("Error! This mode was not found!\n");
-                return -1;
+                return;
         }
 
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
@@ -300,14 +296,6 @@ int main(int argc, char* argv[]) {
     double encryption_std = sqrt(sum_encryption / (NumOfExperiments - 1));
     double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
-    // PRINT THE RESULTS
-    printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
-    printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
-
-    // CHECK THE RESULTS
-    if (pass) printf("TESTS PASSED!!!\n");
-    else printf("TESTS FAILED(\n");
-
     free(message);
     free(cyphertext);
     free(decrypted_message);
@@ -315,5 +303,23 @@ int main(int argc, char* argv[]) {
     free(encryption_times);
     free(decryption_times);
 
-    return 0;
+    // CHECK THE RESULTS
+    if (pass) printf("TESTS PASSED!!!\n");
+    else printf("TESTS FAILED(\n");
+
+    // RETURN THE RESULTS
+    DES_results->encryption_mean_time = encryption_mean_time;
+    DES_results->encryption_std = encryption_std;
+
+    DES_results->decryption_mean_time = decryption_mean_time;
+    DES_results->decryption_std = decryption_std;
+
+    return;
+}
+
+void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2) {
+    for (int i = 0; i < 8; i++) {
+        block_1[i] ^= block_2[i];
+    }
+    return;
 }

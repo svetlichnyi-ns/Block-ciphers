@@ -5,21 +5,15 @@
 #include <sys/time.h>
 #include "aes.h"
 
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
-    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        block_1[i] ^= block_2[i];
-    }
-    return;
-}
+void xor_of_two_blocks(BYTE* block_1, BYTE* block_2);
 
-int main(int argc, char* argv[]) {
+void AES_time_performance(unsigned long int number_of_blocks, int option_key, int user_choice, int NumOfExperiments, KPI* AES_results) {
+    
     srand(0);
 
     WORD key_schedule[60];
 
     int pass = 1;
-    unsigned long int number_of_blocks;
-    number_of_blocks = atoi(argv[1]);
     unsigned long int length_of_message = number_of_blocks * AES_BLOCK_SIZE;
 
     BYTE enc_buf[AES_BLOCK_SIZE];
@@ -33,18 +27,10 @@ int main(int argc, char* argv[]) {
     BYTE* cyphertext = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* decrypted_message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
 
-    int option_key;
-    option_key = atoi(argv[2]);
-
     int length_of_key_bytes = 16 + (option_key - 1) * 8;
     int keysize = length_of_key_bytes * 8;
 
     BYTE* user_key = (BYTE*) calloc (length_of_key_bytes, sizeof(BYTE));
-
-    int user_choice;
-    user_choice = atoi(argv[3]);
-
-    int NumOfExperiments = (int) 1e3;
 
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
@@ -275,7 +261,7 @@ int main(int argc, char* argv[]) {
 
             default:
                 printf("Error! This mode was not found!\n");
-                return -1;
+                return;
         }
 
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
@@ -306,14 +292,6 @@ int main(int argc, char* argv[]) {
     double encryption_std = sqrt(sum_encryption / (NumOfExperiments - 1));
     double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
-    // PRINT THE RESULTS
-    printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
-    printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
-
-    // CHECK THE RESULTS
-    if (pass) printf("TESTS PASSED!!!\n");
-    else printf("TESTS FAILED(\n");
-
     free(message);
     free(cyphertext);
     free(decrypted_message);
@@ -321,6 +299,24 @@ int main(int argc, char* argv[]) {
 
     free(encryption_times);
     free(decryption_times);
-    
-    return 0;
+
+    // CHECK THE RESULTS
+    if (pass) printf("TESTS PASSED!!!\n");
+    else printf("TESTS FAILED(\n");
+
+    // RETURN THE RESULTS
+    AES_results->encryption_mean_time = encryption_mean_time;
+    AES_results->encryption_std = encryption_std;
+
+    AES_results->decryption_mean_time = decryption_mean_time;
+    AES_results->decryption_std = decryption_std;
+
+    return;
+}
+
+void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        block_1[i] ^= block_2[i];
+    }
+    return;
 }

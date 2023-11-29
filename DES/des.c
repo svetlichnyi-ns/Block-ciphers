@@ -329,10 +329,3 @@ static inline void print_bits(uint64_t x, register uint64_t Nbit) {
         printf("%d", (x & Nbit) ? 1 : 0);
     putchar('\n');
 }
-
-void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2) {
-    for (int i = 0; i < 8; i++) {
-        block_1[i] ^= block_2[i];
-    }
-    return;
-}

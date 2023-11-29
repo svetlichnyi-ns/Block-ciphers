@@ -16,7 +16,7 @@
 typedef unsigned char BYTE;             // 8-bit byte
 
 typedef struct {
-    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
 } KPI;
 
 /*********************** FUNCTION DECLARATIONS **********************/
