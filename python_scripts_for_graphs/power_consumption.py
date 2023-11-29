@@ -1,0 +1,73 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1000 64 bit-blocks, the length of key: 8 bytes
+
+'''Blowfish_ECB_CPU_0 = np.array([11718403, 12212809, 14838527, 17220026, 14677342, 17644382, 14072239, 10849507, 17417282, 15612870])
+Blowfish_CBC_CPU_0 = np.array([9091754, 9385562, 10090863, 9342214, 14478698, 14983020, 13162146, 10219411, 13611387, 15071593])
+Blowfish_PCBC_CPU_0 = np.array([11685797, 14136567, 14276178, 9662724, 10371382, 10219199, 12162701, 15736827, 13316602, 12121291])
+Blowfish_CFB_CPU_0 = np.array([15086607, 11281231, 9969440, 10121044, 13197789, 9673953, 9687961, 8691200, 11370033, 11942894])
+Blowfish_OFB_CPU_0 = np.array([14944112, 16369179, 18729439, 19552685, 9589134, 10189048, 10411510, 9721680, 9580300, 13383006])
+Blowfish_CTR_CPU_0 = np.array([19182205, 17444791, 17851738, 17291693, 17327320, 18488058, 17903264, 18618849, 18362453, 18775900])
+'''
+
+'''DES_ECB_CPU_0 = np.array([81579338, 84355883, 91697498, 97671478, 95386928, 98993431, 96213850, 92991041, 75778948, 69826330])
+DES_CBC_CPU_0 = np.array([93438267, 90242526, 95286377, 118587449, 102486460, 92052857, 91692417, 90970027, 95725717, 91028770])
+DES_PCBC_CPU_0 = np.array([60069159, 84519692, 62188663, 62786898, 66243873, 62857788, 73534787, 68534053, 61926592, 74876591])
+DES_CFB_CPU_0 = np.array([93720907, 77388759, 72064831, 71100769, 69957976, 76206371, 71770001, 74600100, 89345919, 70972327])
+DES_OFB_CPU_0 = np.array([75693320, 64485419, 63400408, 56263997, 56140804, 62927486, 61687271, 63372394, 61781320, 61469844])
+DES_CTR_CPU_0 = np.array([85408959, 70093085, 67488255, 70094932, 67462514, 87540791, 85828341, 74381362, 104953404, 103138373])
+'''
+
+'''DES_ECB = 
+DES_CBC = 
+DES_PCBC = 
+DES_CFB = 
+DES_OFB = 
+DES_CTR = '''
+
+index = ["ECB","CBC","PCBC","CFB","OFB","CTR"]
+
+# 1000
+Blowfish_ECB = 46527740.5
+Blowfish_CBC = 35224573.0
+Blowfish_PCBC = 37666219.4
+Blowfish_CFB = 34825672.4
+Blowfish_OFB = 34351691.6
+Blowfish_CTR = 34631232.1
+
+values = [Blowfish_ECB,Blowfish_CBC,Blowfish_PCBC,Blowfish_CFB,Blowfish_OFB,Blowfish_CTR]
+
+plt.bar(index,values)
+
+# 100
+Blowfish_ECB = 14182635.8
+Blowfish_CBC = 9497224.5
+Blowfish_PCBC = 10266496.5
+Blowfish_CFB = 9599850.1
+Blowfish_OFB = 10071168.0
+Blowfish_CTR = 12438887.5
+
+'''values = [DES_ECB,DES_CBC,DES_PCBC,DES_CFB,DES_OFB,DES_CTR]'''
+plt.title("Blowfish, 10 (green), 100 (orange) or 1000 (blue) 64-bit blocks, key length: 8 bytes", size = 28)
+plt.ylabel("Joules", size = 32)
+plt.xlabel("Mode", size = 32)
+'''plt.bar(index,values)'''
+
+values = [Blowfish_ECB,Blowfish_CBC,Blowfish_PCBC,Blowfish_CFB,Blowfish_OFB,Blowfish_CTR]
+plt.bar(index,values)
+
+# 10
+Blowfish_ECB = 6927649.2
+Blowfish_CBC = 6547044.5
+Blowfish_PCBC = 10117886.4
+Blowfish_CFB = 7889632.8
+Blowfish_OFB = 6384064.6
+Blowfish_CTR = 8119535.6
+
+values = [Blowfish_ECB,Blowfish_CBC,Blowfish_PCBC,Blowfish_CFB,Blowfish_OFB,Blowfish_CTR]
+plt.bar(index,values)
+
+plt.grid()
+#plt.legend("DES", "Blowfish")
+plt.show()
