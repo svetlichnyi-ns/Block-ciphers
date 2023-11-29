@@ -1,14 +1,11 @@
 #ifndef DES_H
 #define DES_H
 
+#include "../AES/aes.h"
 #include <stddef.h>
 
 #define DES_BLOCK_SIZE 8
 #define BUFF_SIZE 1024
-
-typedef struct {
-    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
-} KPI;
 
 void DES_time_performance(unsigned long int number_of_blocks, int user_choice, int NumOfExperiments, KPI* DES_results);
 

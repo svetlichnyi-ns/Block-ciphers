@@ -5,8 +5,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include "blowfish.h"
-
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2);
+#include "../AES/aes.h"
 
 void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of_key,
                                int user_choice, int NumOfExperiments, KPI* Blowfish_results) {
@@ -299,8 +298,8 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
     free(decryption_times);
 
     // CHECK THE RESULTS
-    if (pass) printf("TESTS PASSED!!!\n");
-    else printf("TESTS FAILED(\n");
+    if (pass) printf("BLOWFISH: TESTS PASSED!!!\n");
+    else printf("BLOWFISH: TESTS FAILED(\n");
 
     // RETURN THE RESULTS
     Blowfish_results->encryption_mean_time = encryption_mean_time;
@@ -309,12 +308,5 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
     Blowfish_results->decryption_mean_time = decryption_mean_time;
     Blowfish_results->decryption_std = decryption_std;
 
-    return;
-}
-
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
-    for (int i = 0; i < BLOWFISH_BLOCK_SIZE; i++) {
-        block_1[i] ^= block_2[i];
-    }
     return;
 }

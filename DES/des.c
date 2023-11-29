@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <memory.h>
 #include "des.h"
+#include "../AES/aes.h"
 
 #define LSHIFT_28BIT(x, L) ((((x) << (L)) | ((x) >> (-(L) & 27))) & (((uint64_t)1 << 32) - 1))
 

@@ -5,7 +5,12 @@
 #include <sys/time.h>
 #include "aes.h"
 
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2);
+void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        block_1[i] ^= block_2[i];
+    }
+    return;
+}
 
 void AES_time_performance(unsigned long int number_of_blocks, int option_key, int user_choice, int NumOfExperiments, KPI* AES_results) {
     
@@ -301,8 +306,8 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
     free(decryption_times);
 
     // CHECK THE RESULTS
-    if (pass) printf("TESTS PASSED!!!\n");
-    else printf("TESTS FAILED(\n");
+    if (pass) printf("AES: TESTS PASSED!!!\n");
+    else printf("AES: TESTS FAILED(\n");
 
     // RETURN THE RESULTS
     AES_results->encryption_mean_time = encryption_mean_time;
@@ -311,12 +316,5 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
     AES_results->decryption_mean_time = decryption_mean_time;
     AES_results->decryption_std = decryption_std;
 
-    return;
-}
-
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
-    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        block_1[i] ^= block_2[i];
-    }
     return;
 }

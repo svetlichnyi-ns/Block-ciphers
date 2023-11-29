@@ -4,10 +4,9 @@
 #include <memory.h>
 #include <math.h>
 #include "des.h"
+#include "../AES/aes.h"
 #include <sys/time.h>
 #include <time.h>
-
-void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2);
 
 void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                           int NumOfExperiments, KPI* DES_results) {
@@ -304,8 +303,8 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
     free(decryption_times);
 
     // CHECK THE RESULTS
-    if (pass) printf("TESTS PASSED!!!\n");
-    else printf("TESTS FAILED(\n");
+    if (pass) printf("DES: TESTS PASSED!!!\n");
+    else printf("DES: TESTS FAILED(\n");
 
     // RETURN THE RESULTS
     DES_results->encryption_mean_time = encryption_mean_time;
@@ -314,12 +313,5 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
     DES_results->decryption_mean_time = decryption_mean_time;
     DES_results->decryption_std = decryption_std;
 
-    return;
-}
-
-void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2) {
-    for (int i = 0; i < DES_BLOCK_SIZE; i++) {
-        block_1[i] ^= block_2[i];
-    }
     return;
 }

@@ -10,10 +10,11 @@
 typedef unsigned char BYTE;
 typedef unsigned int WORD;
 
-typedef struct {
+typedef struct KPI {
     double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
 } KPI;
 
+void xor_of_two_blocks(BYTE* block_1, BYTE* block_2);
 void AES_time_performance(unsigned long int number_of_blocks, int option_key, int user_choice, int NumOfExperiments, KPI* AES_results);
 
 /*********************** FUNCTION DECLARATIONS **********************/

@@ -10,14 +10,11 @@
 #define BASE64_H
 
 /*************************** HEADER FILES ***************************/
+#include "../AES/aes.h"
 #include <stddef.h>
 
 /**************************** DATA TYPES ****************************/
 typedef unsigned char BYTE;             // 8-bit byte
-
-typedef struct {
-    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
-} KPI;
 
 /*********************** FUNCTION DECLARATIONS **********************/
 // Returns the size of the output. If called with out = NULL, will just return

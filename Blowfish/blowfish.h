@@ -10,6 +10,7 @@
 #define BLOWFISH_H
 
 /*************************** HEADER FILES ***************************/
+#include "../AES/aes.h"
 #include <stddef.h>
 
 /****************************** MACROS ******************************/
@@ -23,10 +24,6 @@ typedef struct {
    WORD p[18];
    WORD s[4][256];
 } BLOWFISH_KEY;
-
-typedef struct {
-    double encryption_mean_time, encryption_std, decryption_mean_time, decryption_std;
-} KPI;
 
 void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of_key, int user_choice, int NumOfExperiments, KPI* Blowfish_results);
 
