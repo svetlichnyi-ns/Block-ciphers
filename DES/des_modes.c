@@ -57,13 +57,13 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 gettimeofday(&time_1, NULL); // START OF ENCRYPTION
 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    DES(&cyphertext[k * DES_BLOCK_SIZE], 'E', keys48b, &message[k * DES_BLOCK_SIZE], 8);
+                    DES(&cyphertext[k * DES_BLOCK_SIZE], 'E', keys48b, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                 }
                 
                 gettimeofday(&time_2, NULL); // END OF ENCRYPTION and START OF DECRYPTION
 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    DES(&decrypted_message[k * DES_BLOCK_SIZE], 'D', keys48b,  &cyphertext[k * DES_BLOCK_SIZE], 8);
+                    DES(&decrypted_message[k * DES_BLOCK_SIZE], 'D', keys48b,  &cyphertext[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                 }
 
                 gettimeofday(&time_3, NULL); // END OF DECRYPTION
@@ -79,26 +79,26 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 
                 memcpy(one_block, &message[0], DES_BLOCK_SIZE);
                 xor_of_two_blocks(one_block, initialize_vector);
-                DES(enc_buf, 'E', keys48b, one_block, 8);
+                DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
                 memcpy(&cyphertext[0], enc_buf, DES_BLOCK_SIZE);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(one_block, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                     xor_of_two_blocks(one_block, enc_buf);
-                    DES(enc_buf, 'E', keys48b, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
                     memcpy(&cyphertext[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
                 }
                 
                 gettimeofday(&time_2, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 
                 memcpy(feedback, &cyphertext[0], DES_BLOCK_SIZE);
-                DES(enc_buf, 'D', keys48b, feedback, 8);
+                DES(enc_buf, 'D', keys48b, feedback, DES_BLOCK_SIZE);
                 xor_of_two_blocks(enc_buf, initialize_vector);
                 memcpy(&decrypted_message[0], enc_buf, DES_BLOCK_SIZE);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(tmp_buf, &cyphertext[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
-                    DES(enc_buf, 'D', keys48b, tmp_buf, 8);
+                    DES(enc_buf, 'D', keys48b, tmp_buf, DES_BLOCK_SIZE);
                     xor_of_two_blocks(enc_buf, feedback);
                     memcpy(feedback, tmp_buf, DES_BLOCK_SIZE);
                     memcpy(&decrypted_message[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
@@ -118,7 +118,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 memcpy(one_block, &message[0], DES_BLOCK_SIZE);
                 memcpy(feedback, one_block, DES_BLOCK_SIZE);
                 xor_of_two_blocks(one_block, initialize_vector);
-                DES(enc_buf, 'E', keys48b, one_block, 8);
+                DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
                 memcpy(&cyphertext[0], enc_buf, DES_BLOCK_SIZE);
                 xor_of_two_blocks(feedback, enc_buf);
 
@@ -126,7 +126,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                     memcpy(one_block, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                     memcpy(tmp_buf, one_block, DES_BLOCK_SIZE);
                     xor_of_two_blocks(one_block, feedback);
-                    DES(enc_buf, 'E', keys48b, one_block, 8);
+                    DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
                     memcpy(&cyphertext[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
                     xor_of_two_blocks(tmp_buf, enc_buf);
                     memcpy(feedback, tmp_buf, DES_BLOCK_SIZE);
@@ -318,7 +318,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
 }
 
 void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2) {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < DES_BLOCK_SIZE; i++) {
         block_1[i] ^= block_2[i];
     }
     return;
