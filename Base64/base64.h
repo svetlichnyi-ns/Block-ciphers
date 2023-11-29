@@ -15,6 +15,10 @@
 /**************************** DATA TYPES ****************************/
 typedef unsigned char BYTE;             // 8-bit byte
 
+typedef struct {
+    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+} KPI;
+
 /*********************** FUNCTION DECLARATIONS **********************/
 // Returns the size of the output. If called with out = NULL, will just return
 // the size of what the output would have been (without a terminating NULL).

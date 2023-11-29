@@ -24,6 +24,10 @@ typedef struct {
    WORD s[4][256];
 } BLOWFISH_KEY;
 
+typedef struct {
+    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+} KPI;
+
 /*********************** FUNCTION DECLARATIONS **********************/
 void blowfish_key_setup(const BYTE user_key[], BLOWFISH_KEY *keystruct, size_t len);
 void blowfish_encrypt(const BYTE in[], BYTE out[], const BLOWFISH_KEY *keystruct);

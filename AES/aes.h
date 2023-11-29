@@ -10,6 +10,10 @@
 typedef unsigned char BYTE;
 typedef unsigned int WORD;
 
+typedef struct {
+    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+} KPI;
+
 /*********************** FUNCTION DECLARATIONS **********************/
 ///////////////////
 // AES

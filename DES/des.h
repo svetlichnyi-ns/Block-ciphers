@@ -6,6 +6,10 @@
 #define DES_BLOCK_SIZE 8
 #define BUFF_SIZE 1024
 
+typedef struct {
+    double encryption_mean, encryption_std, decryption_mean, decryption_std;
+} KPI;
+
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned long uint64_t;
