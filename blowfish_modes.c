@@ -14,13 +14,14 @@ void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
 }
 
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
-    BYTE* enc_buf = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
-    BYTE* one_block = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
-    BYTE* initialize_vector = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
-    BYTE* counter = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
-    BYTE* tmp_buf = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
-    BYTE* feedback = (BYTE*) calloc (BLOWFISH_BLOCK_SIZE, sizeof(BYTE));
+    srand(0);
+    BYTE enc_buf[BLOWFISH_BLOCK_SIZE];
+    BYTE one_block[BLOWFISH_BLOCK_SIZE];
+    BYTE initialize_vector[BLOWFISH_BLOCK_SIZE];
+    BYTE counter[BLOWFISH_BLOCK_SIZE];
+    BYTE tmp_buf[BLOWFISH_BLOCK_SIZE];
+    BYTE feedback[BLOWFISH_BLOCK_SIZE];
+    
     BLOWFISH_KEY key;
     int pass = 1;
     
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
     //printf("Enter the length of the message (in 64 bit-blocks): ");
     //scanf("%lu", &number_of_blocks);
     number_of_blocks = atoi(argv[1]);
+    
     unsigned long int length_of_message = number_of_blocks * BLOWFISH_BLOCK_SIZE;
     BYTE* message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* cyphertext = (BYTE*) calloc (length_of_message, sizeof(BYTE));
@@ -43,11 +45,13 @@ int main(int argc, char* argv[]) {
     user_choice = atoi(argv[3]);
     //printf("Which mode? 1 - ECB, 2 - CBC, 3 - PCBC, 4 - CFB, 5 - OFB, 6 - CTR\n");
     //scanf("%d", &user_choice);
-    int NumOfExperiments = 10000;
+    int NumOfExperiments = (int) 1e4;
 
     double* key_setup_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
+
+    struct timeval time_1, time_2, time_3, time_4, time_5;
 
     for (int i = 0; i < NumOfExperiments; i++) {
         for (int j = 0; j < length_of_message; j++) {
@@ -56,15 +60,13 @@ int main(int argc, char* argv[]) {
         for (int j = 0; j < length_of_key; j++) {
             user_key[j] = rand() % 256;
         }
-
-        struct timeval time_1, time_2, time_3, time_4, time_5;
         
         gettimeofday(&time_1, NULL); // START OF KEY SETUP
         blowfish_key_setup(user_key, &key, length_of_key);
         gettimeofday(&time_2, NULL); // END OF KEY SETUP
 
         switch (user_choice) {
-            case 1: // ECB
+            case 1: // ECB mode
                 gettimeofday(&time_3, NULL); // START OF ENCRYPTION
                 
                 for (int k = 0; k < number_of_blocks; k++) {
@@ -78,8 +80,10 @@ int main(int argc, char* argv[]) {
                 }
 
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+
                 break;
-            case 2: // CBC
+
+            case 2: // CBC mode
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
@@ -114,8 +118,10 @@ int main(int argc, char* argv[]) {
                 }
 
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
+                
                 break;
-            case 3: // PCBC
+
+            case 3: // PCBC mode
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
@@ -161,7 +167,8 @@ int main(int argc, char* argv[]) {
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 
                 break;
-            case 4: // CFB
+
+            case 4: // CFB mode
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
@@ -197,7 +204,8 @@ int main(int argc, char* argv[]) {
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
 
                 break;
-            case 5: // OFB
+
+            case 5: // OFB mode
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE; j++) { // the initialization of an IV
                     initialize_vector[j] = rand() % 256;
                 }
@@ -237,7 +245,8 @@ int main(int argc, char* argv[]) {
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 
                 break;
-            case 6: // CTR
+
+            case 6: // CTR mode
                 for (int j = 0; j < BLOWFISH_BLOCK_SIZE - 2; j++) { // the initialization of a counter
                     counter[j] = rand() % 256;
                 }
@@ -267,12 +276,12 @@ int main(int argc, char* argv[]) {
                 gettimeofday(&time_5, NULL); // END OF DECRYPTION
                 
                 break;
+
             default:
                 printf("Error! This mode was not found!\n");
                 return -1;
         }
 
-        // CHECK THE RESULTS
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
 
         key_setup_times[i] = ((time_2.tv_sec - time_1.tv_sec) * 1000000 + time_2.tv_usec - time_1.tv_usec) / 1000.0;
@@ -280,6 +289,7 @@ int main(int argc, char* argv[]) {
         decryption_times[i] = ((time_5.tv_sec - time_4.tv_sec) * 1000000 + time_5.tv_usec - time_4.tv_usec) / 1000.0;
     }
 
+    // time_estimation
     double key_setup_total_time = 0;
     double encryption_total_time = 0;
     double decryption_total_time = 0;
@@ -312,21 +322,17 @@ int main(int argc, char* argv[]) {
     printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
 
     // CHECK THE RESULTS
-    printf("PASS: %d\n", pass);
+    if (pass) printf("TESTS PASSED!!!\n");
+    else printf("TESTS FAILED(\n");
     
     free(message);
     free(cyphertext);
     free(decrypted_message);
-    free(one_block);
-    free(initialize_vector);
-    free(counter);
-    free(enc_buf);
-    free(tmp_buf);
-    free(feedback);
     free(user_key);
 
     free(key_setup_times);
     free(encryption_times);
     free(decryption_times);
+
     return 0;
 }
