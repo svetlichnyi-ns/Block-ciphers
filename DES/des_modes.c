@@ -21,10 +21,7 @@ int main(int argc, char* argv[]) {
     int pass = 1;
 
     unsigned long int number_of_blocks;
-    //printf("Enter the length of the message (in 64 bit-blocks): ");
-    //scanf("%lu", &number_of_blocks);
     number_of_blocks = atoi(argv[1]);
-
     unsigned long int length_of_message = number_of_blocks * DES_BLOCK_SIZE;
 
     uint8_t* message = (uint8_t*) calloc (length_of_message, sizeof(uint8_t));
@@ -35,11 +32,9 @@ int main(int argc, char* argv[]) {
     uint8_t user_key[DES_BLOCK_SIZE];
 
     int user_choice;
-    //printf("Which mode? 1 - ECB, 2 - CBC, 3 - PCBC, 4 - CFB, 5 - OFB, 6 - CTR\n");
-    //scanf("%d", &user_choice);
     user_choice = atoi(argv[2]);
 
-    int NumOfExperiments = 10;
+    int NumOfExperiments = (int) 1e3;
 
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
@@ -52,9 +47,9 @@ int main(int argc, char* argv[]) {
             user_key[j] = rand() % 256;
         }
         
-        uint64_t keys48b[16] = {0}; // создаются 16 ключей по 48 бит
+        uint64_t keys48b[16] = {0};
 
-        key_expansion( // расширение ключа
+        key_expansion(
             join_8bits_to_64bits(user_key),
             keys48b
         );
