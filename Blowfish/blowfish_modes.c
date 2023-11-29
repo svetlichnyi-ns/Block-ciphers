@@ -317,7 +317,7 @@ int main(int argc, char* argv[]) {
     double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
     // PRINT THE RESULTS
-    printf("\nKey setup: %f ± %f (milliseconds)\n", key_setup_mean_time, key_setup_std);
+    printf("Key setup: %f ± %f (milliseconds)\n", key_setup_mean_time, key_setup_std);
     printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
     printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
 

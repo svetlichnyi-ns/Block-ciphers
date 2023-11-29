@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <memory.h>
 #include "des.h"
 
@@ -126,14 +127,14 @@ size_t DES(uint8_t * to, uint8_t mode, uint64_t * keys48b, uint8_t * from, size_
 void feistel_cipher(uint8_t mode, uint32_t * N1, uint32_t * N2, uint64_t * keys48b) {
     switch(mode) {
         case 'E': case 'e': {
-            for (int8_t round = 0; round < 16; ++round) {
+            for (signed char round = 0; round < 16; ++round) {
                 round_feistel_cipher(N1, N2, keys48b[round]);
             }
             swap(N1, N2);
             break;
         }
         case 'D': case 'd': {
-            for (int8_t round = 15; round >= 0; --round) {
+            for (signed char round = 15; round >= 0; --round) {
                 round_feistel_cipher(N1, N2, keys48b[round]);
             }
             swap(N1, N2);
