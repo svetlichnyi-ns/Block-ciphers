@@ -10,37 +10,32 @@
 #include "DES/des.h"
 
 int main() {
+    int i, j;
     int NumOfExperiments = (int) 1e3;
-    unsigned long int number_of_blocks[3] = {10, 20, 30};
+    unsigned long int number_of_blocks[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
     // arrays for mean values
-    double AES_1_encryption_mean[6][3], AES_2_encryption_mean[6][3], AES_3_encryption_mean[6][3];
-    double DES_encryption_mean[6][3];
-    double Blowfish_encryption_mean[6][3];
+    double AES_1_encryption_mean[6][10], AES_2_encryption_mean[6][10], AES_3_encryption_mean[6][10];
+    double DES_encryption_mean[6][10];
+    double Blowfish_encryption_mean[6][10];
 
-    double AES_1_decryption_mean[6][3], AES_2_decryption_mean[6][3], AES_3_decryption_mean[6][3];
-    double DES_decryption_mean[6][3];
-    double Blowfish_decryption_mean[6][3];
+    double AES_1_decryption_mean[6][10], AES_2_decryption_mean[6][10], AES_3_decryption_mean[6][10];
+    double DES_decryption_mean[6][10];
+    double Blowfish_decryption_mean[6][10];
 
     // arrays for std values
-    double AES_1_encryption_std[6][3];
-    double AES_2_encryption_std[6][3];
-    double AES_3_encryption_std[6][3];
-    double DES_encryption_std[6][3];
-    double Blowfish_encryption_std[6][3];
+    double AES_1_encryption_std[6][10], AES_2_encryption_std[6][10], AES_3_encryption_std[6][10];
+    double DES_encryption_std[6][10];
+    double Blowfish_encryption_std[6][10];
 
-    double AES_1_decryption_std[6][3];
-    double AES_2_decryption_std[6][3];
-    double AES_3_decryption_std[6][3];
-    double DES_decryption_std[6][3];
-    double Blowfish_decryption_std[6][3];
-
-    KPI results;
+    double AES_1_decryption_std[6][10], AES_2_decryption_std[6][10], AES_3_decryption_std[6][10];
+    double DES_decryption_std[6][10];
+    double Blowfish_decryption_std[6][10];
 
     // collect the results
-    for (int i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
         printf("Mode: %d\n", i + 1);
-        for (int j = 0; j < 3; j++) {
+        for (j = 0; j < 10; j++) {
             printf("Number of blocks (for AES; for DES and Blowfish - twice as large): %ld\n", number_of_blocks[j]);
             // AES-1
             {
@@ -77,7 +72,7 @@ int main() {
                 AES_3_decryption_mean[i][j] = results.decryption_mean_time;
                 AES_3_decryption_std[i][j] = results.decryption_std;
             }
-            
+            /*
             // DES
             {
                 KPI results;
@@ -101,50 +96,113 @@ int main() {
                 Blowfish_decryption_mean[i][j] = results.decryption_mean_time;
                 Blowfish_decryption_std[i][j] = results.decryption_std;
             }
-
+            */
         }
     }
 
     FILE *ff;
     ff = fopen("results.txt", "w");
 
-    for (int i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
         fprintf(ff, "Mode: %d\n", i + 1);
+
+        // Encryption
+
         // print results for AES-1
         fprintf(ff, "AES_1_encryption_mean = [");
-        for (int j = 0; j < 2; j++) {
+        for (j = 0; j < 9; j++) {
             fprintf(ff, "%lf, ", AES_1_encryption_mean[i][j]);
         }
-        fprintf(ff, "%lf]\n", AES_1_encryption_mean[i][2]);
+        fprintf(ff, "%lf]\n", AES_1_encryption_mean[i][9]);
+
+        fprintf(ff, "AES_1_encryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_1_encryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_1_encryption_std[i][9]);
 
         // print results for AES-2
         fprintf(ff, "AES_2_encryption_mean = [");
-        for (int j = 0; j < 2; j++) {
+        for (j = 0; j < 9; j++) {
             fprintf(ff, "%lf, ", AES_2_encryption_mean[i][j]);
         }
-        fprintf(ff, "%lf]\n", AES_2_encryption_mean[i][2]);
+        fprintf(ff, "%lf]\n", AES_2_encryption_mean[i][9]);
+
+        fprintf(ff, "AES_2_encryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_2_encryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_2_encryption_std[i][9]);
 
         // print results for AES-3
         fprintf(ff, "AES_3_encryption_mean = [");
-        for (int j = 0; j < 2; j++) {
+        for (j = 0; j < 9; j++) {
             fprintf(ff, "%lf, ", AES_3_encryption_mean[i][j]);
         }
-        fprintf(ff, "%lf]\n", AES_3_encryption_mean[i][2]);
+        fprintf(ff, "%lf]\n", AES_3_encryption_mean[i][9]);
 
+        fprintf(ff, "AES_3_encryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_3_encryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_3_encryption_std[i][9]);
+
+        // Decryption
+
+        // print results for AES-1
+        fprintf(ff, "AES_1_decryption_mean = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_1_decryption_mean[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_1_decryption_mean[i][9]);
+
+        fprintf(ff, "AES_1_decryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_1_decryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_1_decryption_std[i][9]);
+
+        // print results for AES-2
+        fprintf(ff, "AES_2_decryption_mean = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_2_decryption_mean[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_2_decryption_mean[i][9]);
+
+        fprintf(ff, "AES_2_decryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_2_decryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_2_decryption_std[i][9]);
+
+        // print results for AES-3
+        fprintf(ff, "AES_3_decryption_mean = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_3_decryption_mean[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_3_decryption_mean[i][9]);
+
+        fprintf(ff, "AES_3_decryption_std = [");
+        for (j = 0; j < 9; j++) {
+            fprintf(ff, "%lf, ", AES_3_decryption_std[i][j]);
+        }
+        fprintf(ff, "%lf]\n", AES_3_decryption_std[i][9]);
+
+        /*
         // print results for DES
         fprintf(ff, "DES_encryption_mean = [");
-        for (int j = 0; j < 2; j++) {
+        for (int j = 0; j < 19; j++) {
             fprintf(ff, "%lf, ", DES_encryption_mean[i][j]);
         }
         fprintf(ff, "%lf]\n", DES_encryption_mean[i][2]);
 
         // print results for Blowfish
         fprintf(ff, "Blowfish_encryption_mean = [");
-        for (int j = 0; j < 2; j++) {
+        for (int j = 0; j < 19; j++) {
             fprintf(ff, "%lf, ", Blowfish_encryption_mean[i][j]);
         }
         fprintf(ff, "%lf]\n", Blowfish_encryption_mean[i][2]);
-
+        */
     }
 
     fclose(ff);
