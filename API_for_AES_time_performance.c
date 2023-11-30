@@ -13,7 +13,7 @@
 int main() {
     int i, j;
     int NumOfExperiments = (int) 1e3;
-    unsigned long int number_of_blocks[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    unsigned long int number_of_blocks[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     // arrays for mean values
     double AES_1_encryption_mean[6][10], AES_2_encryption_mean[6][10], AES_3_encryption_mean[6][10];
