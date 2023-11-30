@@ -4,12 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <math.h>
 
 
 #define STRINGLENGHT 76
 
 static const BYTE charset[] = {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"}; //алфавит
-static const int key = 250; //8 битный ключ
+double avr_time_decode;
+double avr_time_encode;
+double delta_times_encode[20000];
+double delta_times_decode[20000];
+double sigma_encode;
+double sigma_decode;
+
+int key;
 
 BYTE revchar(char ch) //нормируем чтобы были числа от 0 до 63
 {
@@ -135,35 +143,88 @@ size_t base64_decode(const BYTE in[], BYTE out[], size_t len) //декодер
 	return(idx);
 }
 
-void base64_test()
+void base64_test(char *text)
 {
-	BYTE text[3][1024] = {{"foobar"},
-						  {"The most famous part of the Taj Mahal is the large white dome in the centre. It is 35 metres high and is surrounded by four smaller domes. The rooms inside the building are decorated with beautiful archways and precious stones in the walls. The buildings are surrounded by gardens with pathways, pools, fountains and green gardens"},
-	                      {"Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure"}};
+
 	
-	BYTE buf[1000];
-	BYTE out[1000];
+	BYTE buf[1000000];
+	BYTE out[1000000];
 	size_t buf_len;
-	for (int i = 0; i < 3; i++) {
+	int iterations = 1000;
+	double sum_time_encode = 0;
+	double sum_time_decode = 0;
+
+
+	for (int i = 0; i < iterations; i++) {
 		memset(buf, 0, sizeof(buf)); //очитска памяти переменных от мусора
 		memset(out, 0, sizeof(out));
 
+		struct timeval stop, start;
+    	gettimeofday(&start, NULL);
+		buf_len = base64_encode(text, buf, strlen(text), 1);
+		gettimeofday(&stop, NULL);
+		double delta_encode = ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000.0;
+		sum_time_encode += delta_encode;
+		delta_times_encode[i] = delta_encode;
+		//printf("%s\n", buf);
 
-		buf_len = base64_encode(text[i], buf, strlen(text[i]), 1);
-
+		gettimeofday(&start, NULL);
 		buf_len = base64_decode(buf, out, strlen(buf));
-
-	
-		printf("%s\n", out);
+       	gettimeofday(&stop, NULL);
+    	double delta_decode = ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000.0;
+	    sum_time_decode += delta_decode;
+		delta_times_decode[i] = delta_decode;
+		//printf("%s\n", out);
 
 		memset(buf, 0, sizeof(buf));
 		memset(out, 0, sizeof(out));
 	}
+	avr_time_decode = sum_time_decode / iterations;
+	avr_time_encode = sum_time_encode / iterations;
+	sigma_decode = 0;
+	sigma_encode = 0;
 	
+	for (int i = 0; i < iterations; i++){
+		sigma_decode += (delta_times_decode[i] - avr_time_decode) * (delta_times_decode[i] - avr_time_decode);
+		sigma_encode += (delta_times_encode[i] - avr_time_encode) * (delta_times_encode[i] - avr_time_encode);
+	}
+	sigma_decode = sqrt(sigma_decode) / iterations;
+	sigma_encode = sqrt(sigma_encode) / iterations;
 }
 
 int main()
 {
-	base64_test();
+	int key = rand() % 256; //8 битный ключ
+	int size_samples_array = 1600;
+    int limit = 11;
+    double times_array_encode[limit]; //массив с временами шифрования если вдруг захочется куда в файл выписать
+	double times_array_decode[limit]; //массив с временами дешифрования
+	double times_array_sigmas_encode[limit]; //массив с сигмами шифрования
+	double times_array_sigmas_decode[limit]; //массив с сигмами дешифрования
+
+
+    for(int j = 1; j < limit; ++j){
+        char *text = malloc(size_samples_array * j * sizeof(char) + 10 * sizeof(char));
+        for(int i = 0; i < size_samples_array * j; i+=10){
+            text[i] = (char)('A' + rand() % 26);
+            text[i + 1] = (char)('a' + rand() % 26);
+            text[i + 2] = (char)('0' + rand() % 10);
+            text[i + 3] = (char)('A' + rand() % 26);
+            text[i + 4] = (char)('a' + rand() % 26);
+            text[i + 5] = (char)('A' + rand() % 26);
+            text[i + 6] = (char)('0' + rand() % 10);
+            text[i + 7] = (char)('0' + rand() % 10);
+            text[i + 8] = (char)('a' + rand() % 26);
+            text[i + 9] = (char)('A' + rand() % 26);
+        }
+        base64_test(text);
+        printf("time enc %lg time dec %lg sigma enc %lg sigma dec %lg size %d\n", avr_time_encode, avr_time_decode, sigma_encode, sigma_decode, size_samples_array * j);
+        times_array_encode[j-1] = avr_time_encode;
+		times_array_decode[j-1] = avr_time_decode;
+		times_array_sigmas_encode[j-1] = sigma_encode;
+		times_array_sigmas_decode[j-1] = sigma_decode;
+		free(text);
+    }
+    
 	return 0;
 }
