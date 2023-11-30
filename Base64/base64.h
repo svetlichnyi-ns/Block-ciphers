@@ -14,4 +14,6 @@ size_t base64_encode(const BYTE in[], BYTE out[], size_t len, int newline_flag);
 // the size of what the output would have been (without a terminating NULL).
 size_t base64_decode(const BYTE in[], BYTE out[], size_t len);
 
+void EB64_time_performance();
+
 #endif

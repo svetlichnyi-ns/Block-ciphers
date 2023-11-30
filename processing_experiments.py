@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-numbers_of_blocks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+numbers_of_blocks = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 numbers_of_bytes = [16 * numbers_of_blocks[i] for i in range(10)]
 
 filenames = ["AES_1_encryption.txt",
@@ -13,7 +13,9 @@ filenames = ["AES_1_encryption.txt",
              "DES_encryption.txt",
              "DES_decryption.txt",
              "Blowfish_encryption.txt",
-             "Blowfish_decryption.txt"]
+             "Blowfish_decryption.txt",
+             "EB64_encoding.txt",
+             "EB64_decoding.txt"]
 
 headers = ['AES, encryption (length of key: 128 bits)',
            'AES, decryption (length of key: 128 bits)',
@@ -24,7 +26,9 @@ headers = ['AES, encryption (length of key: 128 bits)',
            'DES, encryption',
            'DES, decryption',
            'Blowfish, encryption (length of key: 56 bytes)',
-           'Blowfish, decryption (length of key: 56 bytes)']
+           'Blowfish, decryption (length of key: 56 bytes)',
+           'EB64, encoding',
+           'EB64, decoding']
 
 for i in range(10):
     data = []
@@ -46,3 +50,18 @@ for i in range(10):
     plt.legend(['ECB', 'CBC', 'PCBC', 'CFB', 'OFB', 'CTR'], prop={'size': 26})
     plt.show()
     
+# EB64
+
+for i in range(2):
+    data = []
+    with open(filenames[i + 10], "r") as file:
+        for line in file:
+            row = [float(num) for num in line.split()]
+            data.append(row)
+            
+    plt.xlabel('Количество байт в шифруемом сообщении', size=26)
+    plt.ylabel('Время исполнения, мс', size=26)
+    plt.title(headers[i + 10], size=32)
+    plt.grid()
+    plt.errorbar(numbers_of_bytes, data[0], yerr=data[1], fmt='-o')
+    plt.show()

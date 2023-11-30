@@ -8,11 +8,12 @@
 #include "Blowfish/blowfish.h"
 #include "AES/aes.h"
 #include "DES/des.h"
+#include "Base64/base64.h"
 
 int main() {
     int i, j;
     int NumOfExperiments = (int) 1e3;
-    unsigned long int number_of_blocks[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    unsigned long int number_of_blocks[10] = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
     // arrays for mean values
     double AES_1_encryption_mean[6][10], AES_2_encryption_mean[6][10], AES_3_encryption_mean[6][10];
@@ -22,6 +23,8 @@ int main() {
     double AES_1_decryption_mean[6][10], AES_2_decryption_mean[6][10], AES_3_decryption_mean[6][10];
     double DES_decryption_mean[6][10];
     double Blowfish_decryption_mean[6][10];
+
+    double EB64_coding_mean[1][10], EB64_decoding_mean[1][10], EB64_coding_std[1][10], EB64_decoding_std[1][10];
 
     // arrays for std values
     double AES_1_encryption_std[6][10], AES_2_encryption_std[6][10], AES_3_encryption_std[6][10];
@@ -99,6 +102,8 @@ int main() {
             }
         }
     }
+
+    EB64_time_performance();
 
     // print results for AES-1
     FILE* file_1;
