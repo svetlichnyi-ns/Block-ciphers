@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include "aes.h"
 
-void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
+void xor_of_two_blocks_AES(BYTE* block_1, BYTE* block_2) {
     for (int i = 0; i < AES_BLOCK_SIZE; i++) {
         block_1[i] ^= block_2[i];
     }
@@ -78,13 +78,13 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 gettimeofday(&time_1, NULL); // START OF ENCRYPTION
                 
                 memcpy(one_block, &message[0], AES_BLOCK_SIZE);
-                xor_of_two_blocks(one_block, initialize_vector);
+                xor_of_two_blocks_AES(one_block, initialize_vector);
                 aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                 memcpy(&cyphertext[0], enc_buf, AES_BLOCK_SIZE);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(one_block, &message[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(one_block, enc_buf);
+                    xor_of_two_blocks_AES(one_block, enc_buf);
                     aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                     memcpy(&cyphertext[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
@@ -93,13 +93,13 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 
                 memcpy(feedback, &cyphertext[0], AES_BLOCK_SIZE);
                 aes_decrypt(feedback, enc_buf, key_schedule, keysize);
-                xor_of_two_blocks(enc_buf, initialize_vector);
+                xor_of_two_blocks_AES(enc_buf, initialize_vector);
                 memcpy(&decrypted_message[0], enc_buf, AES_BLOCK_SIZE);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(tmp_buf, &cyphertext[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
                     aes_decrypt(tmp_buf, enc_buf, key_schedule, keysize);
-                    xor_of_two_blocks(enc_buf, feedback);
+                    xor_of_two_blocks_AES(enc_buf, feedback);
                     memcpy(feedback, tmp_buf, AES_BLOCK_SIZE);
                     memcpy(&decrypted_message[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
@@ -117,18 +117,18 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 
                 memcpy(one_block, &message[0], AES_BLOCK_SIZE);
                 memcpy(feedback, one_block, AES_BLOCK_SIZE);
-                xor_of_two_blocks(one_block, initialize_vector);
+                xor_of_two_blocks_AES(one_block, initialize_vector);
                 aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                 memcpy(&cyphertext[0], enc_buf, AES_BLOCK_SIZE);
-                xor_of_two_blocks(feedback, enc_buf);
+                xor_of_two_blocks_AES(feedback, enc_buf);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(one_block, &message[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
                     memcpy(tmp_buf, one_block, AES_BLOCK_SIZE);
-                    xor_of_two_blocks(one_block, feedback);
+                    xor_of_two_blocks_AES(one_block, feedback);
                     aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                     memcpy(&cyphertext[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
-                    xor_of_two_blocks(tmp_buf, enc_buf);
+                    xor_of_two_blocks_AES(tmp_buf, enc_buf);
                     memcpy(feedback, tmp_buf, AES_BLOCK_SIZE);
                 }
 
@@ -137,17 +137,17 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 memcpy(one_block, &cyphertext[0], AES_BLOCK_SIZE);
                 memcpy(feedback, one_block, AES_BLOCK_SIZE);
                 aes_decrypt(one_block, enc_buf, key_schedule, keysize);
-                xor_of_two_blocks(enc_buf, initialize_vector);
+                xor_of_two_blocks_AES(enc_buf, initialize_vector);
                 memcpy(&decrypted_message[0], enc_buf, AES_BLOCK_SIZE);
-                xor_of_two_blocks(feedback, enc_buf);
+                xor_of_two_blocks_AES(feedback, enc_buf);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(one_block, &cyphertext[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
                     memcpy(tmp_buf, one_block, AES_BLOCK_SIZE);
                     aes_decrypt(one_block, enc_buf, key_schedule, keysize);
-                    xor_of_two_blocks(enc_buf, feedback);
+                    xor_of_two_blocks_AES(enc_buf, feedback);
                     memcpy(&decrypted_message[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
-                    xor_of_two_blocks(tmp_buf, enc_buf);
+                    xor_of_two_blocks_AES(tmp_buf, enc_buf);
                     memcpy(feedback, tmp_buf, AES_BLOCK_SIZE);
                 }
 
@@ -164,13 +164,13 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 
                 aes_encrypt(initialize_vector, enc_buf, key_schedule, keysize);
                 memcpy(one_block, &message[0], AES_BLOCK_SIZE);
-                xor_of_two_blocks(one_block, enc_buf);
+                xor_of_two_blocks_AES(one_block, enc_buf);
                 memcpy(&cyphertext[0], one_block, AES_BLOCK_SIZE);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                     memcpy(one_block, &message[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(one_block, enc_buf);
+                    xor_of_two_blocks_AES(one_block, enc_buf);
                     memcpy(&cyphertext[k * AES_BLOCK_SIZE], one_block, AES_BLOCK_SIZE);
                 }
 
@@ -178,13 +178,13 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 
                 aes_encrypt(initialize_vector, enc_buf, key_schedule, keysize);
                 memcpy(one_block, &cyphertext[0], AES_BLOCK_SIZE);
-                xor_of_two_blocks(enc_buf, one_block);
+                xor_of_two_blocks_AES(enc_buf, one_block);
                 memcpy(&decrypted_message[0], enc_buf, AES_BLOCK_SIZE);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     aes_encrypt(one_block, enc_buf, key_schedule, keysize);
                     memcpy(one_block, &cyphertext[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(enc_buf, one_block);
+                    xor_of_two_blocks_AES(enc_buf, one_block);
                     memcpy(&decrypted_message[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
 
@@ -202,14 +202,14 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 aes_encrypt(initialize_vector, enc_buf, key_schedule, keysize);
                 memcpy(feedback, enc_buf, AES_BLOCK_SIZE);
                 memcpy(one_block, &message[0], AES_BLOCK_SIZE);
-                xor_of_two_blocks(enc_buf, one_block);
+                xor_of_two_blocks_AES(enc_buf, one_block);
                 memcpy(&cyphertext[0], enc_buf, AES_BLOCK_SIZE);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     aes_encrypt(feedback, enc_buf, key_schedule, keysize);
                     memcpy(feedback, enc_buf, AES_BLOCK_SIZE);
                     memcpy(one_block, &message[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(enc_buf, one_block);
+                    xor_of_two_blocks_AES(enc_buf, one_block);
                     memcpy(&cyphertext[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
 
@@ -218,14 +218,14 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                 aes_encrypt(initialize_vector, enc_buf, key_schedule, keysize);
                 memcpy(feedback, enc_buf, AES_BLOCK_SIZE);
                 memcpy(one_block, &cyphertext[0], AES_BLOCK_SIZE);
-                xor_of_two_blocks(enc_buf, one_block);
+                xor_of_two_blocks_AES(enc_buf, one_block);
                 memcpy(&decrypted_message[0], enc_buf, AES_BLOCK_SIZE);
                 
                 for (int k = 1; k < number_of_blocks; k++) {
                     aes_encrypt(feedback, enc_buf, key_schedule, keysize);
                     memcpy(feedback, enc_buf, AES_BLOCK_SIZE);
                     memcpy(one_block, &cyphertext[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(enc_buf, one_block);
+                    xor_of_two_blocks_AES(enc_buf, one_block);
                     memcpy(&decrypted_message[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
 
@@ -245,7 +245,7 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                     counter[AES_BLOCK_SIZE - 1] = k % 256;
                     aes_encrypt(counter, enc_buf, key_schedule, keysize);
                     memcpy(one_block, &message[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(enc_buf, one_block);
+                    xor_of_two_blocks_AES(enc_buf, one_block);
                     memcpy(&cyphertext[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
 
@@ -256,7 +256,7 @@ void AES_time_performance(unsigned long int number_of_blocks, int option_key, in
                     counter[AES_BLOCK_SIZE - 1] = k % 256;
                     aes_encrypt(counter, enc_buf, key_schedule, keysize);
                     memcpy(one_block, &cyphertext[k * AES_BLOCK_SIZE], AES_BLOCK_SIZE);
-                    xor_of_two_blocks(enc_buf, one_block);
+                    xor_of_two_blocks_AES(enc_buf, one_block);
                     memcpy(&decrypted_message[k * AES_BLOCK_SIZE], enc_buf, AES_BLOCK_SIZE);
                 }
 

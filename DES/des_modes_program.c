@@ -4,19 +4,10 @@
 #include <memory.h>
 #include <math.h>
 #include "des.h"
-#include "../AES/aes.h"
 #include <sys/time.h>
 #include <time.h>
 
-void xor_of_two_blocks_DES(BYTE* block_1, BYTE* block_2) {
-    for (int i = 0; i < DES_BLOCK_SIZE; i++) {
-        block_1[i] ^= block_2[i];
-    }
-    return;
-}
-
-void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
-                          int NumOfExperiments, KPI* DES_results) {
+int main(int argc, char* argv[]) {
 
     srand(0);
 
@@ -29,6 +20,11 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
 
     int pass = 1;
 
+    unsigned long int number_of_blocks;
+    //printf("Enter the length of the message (in 64 bit-blocks): ");
+    //scanf("%lu", &number_of_blocks);
+    number_of_blocks = atoi(argv[1]);
+
     unsigned long int length_of_message = number_of_blocks * DES_BLOCK_SIZE;
 
     uint8_t* message = (uint8_t*) calloc (length_of_message, sizeof(uint8_t));
@@ -37,6 +33,13 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
 
     int length_of_key = DES_BLOCK_SIZE;
     uint8_t user_key[DES_BLOCK_SIZE];
+
+    int user_choice;
+    //printf("Which mode? 1 - ECB, 2 - CBC, 3 - PCBC, 4 - CFB, 5 - OFB, 6 - CTR\n");
+    //scanf("%d", &user_choice);
+    user_choice = atoi(argv[2]);
+
+    int NumOfExperiments = (int) 1e3;
 
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
@@ -49,9 +52,9 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
             user_key[j] = rand() % 256;
         }
         
-        uint64_t keys48b[16] = {0};
+        uint64_t keys48b[16] = {0}; // создаются 16 ключей по 48 бит
 
-        key_expansion(
+        key_expansion( // расширение ключа
             join_8bits_to_64bits(user_key),
             keys48b
         );
@@ -63,13 +66,13 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 gettimeofday(&time_1, NULL); // START OF ENCRYPTION
 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    DES(&cyphertext[k * DES_BLOCK_SIZE], 'E', keys48b, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
+                    DES(&cyphertext[k * DES_BLOCK_SIZE], 'E', keys48b, &message[k * DES_BLOCK_SIZE], 8);
                 }
                 
                 gettimeofday(&time_2, NULL); // END OF ENCRYPTION and START OF DECRYPTION
 
                 for (int k = 0; k < number_of_blocks; k++) {
-                    DES(&decrypted_message[k * DES_BLOCK_SIZE], 'D', keys48b,  &cyphertext[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
+                    DES(&decrypted_message[k * DES_BLOCK_SIZE], 'D', keys48b,  &cyphertext[k * DES_BLOCK_SIZE], 8);
                 }
 
                 gettimeofday(&time_3, NULL); // END OF DECRYPTION
@@ -85,26 +88,26 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 
                 memcpy(one_block, &message[0], DES_BLOCK_SIZE);
                 xor_of_two_blocks_DES(one_block, initialize_vector);
-                DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
+                DES(enc_buf, 'E', keys48b, one_block, 8);
                 memcpy(&cyphertext[0], enc_buf, DES_BLOCK_SIZE);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(one_block, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                     xor_of_two_blocks_DES(one_block, enc_buf);
-                    DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     memcpy(&cyphertext[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
                 }
                 
                 gettimeofday(&time_2, NULL); // END OF ENCRYPTION and START OF DECRYPTION
                 
                 memcpy(feedback, &cyphertext[0], DES_BLOCK_SIZE);
-                DES(enc_buf, 'D', keys48b, feedback, DES_BLOCK_SIZE);
+                DES(enc_buf, 'D', keys48b, feedback, 8);
                 xor_of_two_blocks_DES(enc_buf, initialize_vector);
                 memcpy(&decrypted_message[0], enc_buf, DES_BLOCK_SIZE);
 
                 for (int k = 1; k < number_of_blocks; k++) {
                     memcpy(tmp_buf, &cyphertext[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
-                    DES(enc_buf, 'D', keys48b, tmp_buf, DES_BLOCK_SIZE);
+                    DES(enc_buf, 'D', keys48b, tmp_buf, 8);
                     xor_of_two_blocks_DES(enc_buf, feedback);
                     memcpy(feedback, tmp_buf, DES_BLOCK_SIZE);
                     memcpy(&decrypted_message[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
@@ -124,7 +127,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                 memcpy(one_block, &message[0], DES_BLOCK_SIZE);
                 memcpy(feedback, one_block, DES_BLOCK_SIZE);
                 xor_of_two_blocks_DES(one_block, initialize_vector);
-                DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
+                DES(enc_buf, 'E', keys48b, one_block, 8);
                 memcpy(&cyphertext[0], enc_buf, DES_BLOCK_SIZE);
                 xor_of_two_blocks_DES(feedback, enc_buf);
 
@@ -132,7 +135,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
                     memcpy(one_block, &message[k * DES_BLOCK_SIZE], DES_BLOCK_SIZE);
                     memcpy(tmp_buf, one_block, DES_BLOCK_SIZE);
                     xor_of_two_blocks_DES(one_block, feedback);
-                    DES(enc_buf, 'E', keys48b, one_block, DES_BLOCK_SIZE);
+                    DES(enc_buf, 'E', keys48b, one_block, 8);
                     memcpy(&cyphertext[k * DES_BLOCK_SIZE], enc_buf, DES_BLOCK_SIZE);
                     xor_of_two_blocks_DES(tmp_buf, enc_buf);
                     memcpy(feedback, tmp_buf, DES_BLOCK_SIZE);
@@ -272,7 +275,7 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
 
             default:
                 printf("Error! This mode was not found!\n");
-                return;
+                return -1;
         }
 
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
@@ -302,6 +305,14 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
     double encryption_std = sqrt(sum_encryption / (NumOfExperiments - 1));
     double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
+    // PRINT THE RESULTS
+    printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
+    printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
+
+    // CHECK THE RESULTS
+    if (pass) printf("TESTS PASSED!!!\n");
+    else printf("TESTS FAILED(\n");
+
     free(message);
     free(cyphertext);
     free(decrypted_message);
@@ -309,16 +320,5 @@ void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
     free(encryption_times);
     free(decryption_times);
 
-    // CHECK THE RESULTS
-    if (pass) printf("DES: TESTS PASSED!!!\n");
-    else printf("DES: TESTS FAILED(\n");
-
-    // RETURN THE RESULTS
-    DES_results->encryption_mean_time = encryption_mean_time;
-    DES_results->encryption_std = encryption_std;
-
-    DES_results->decryption_mean_time = decryption_mean_time;
-    DES_results->decryption_std = decryption_std;
-
-    return;
+    return 0;
 }

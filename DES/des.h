@@ -7,13 +7,14 @@
 #define DES_BLOCK_SIZE 8
 #define BUFF_SIZE 1024
 
-void DES_time_performance(unsigned long int number_of_blocks, int user_choice, int NumOfExperiments, KPI* DES_results);
-
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned long uint64_t;
 
 size_t DES(uint8_t * to, uint8_t mode, uint64_t * keys48b, uint8_t * from, size_t length);
+
+void DES_time_performance(unsigned long int number_of_blocks, int user_choice,
+                          int NumOfExperiments, KPI* DES_results);
 
 void key_expansion(uint64_t key64b, uint64_t * keys48b);
 void key_permutation_56bits_to_28bits(uint64_t block56b, uint32_t * block32b_1, uint32_t * block32b_2);
@@ -48,6 +49,6 @@ static inline void swap(uint32_t * N1, uint32_t * N2);
 static inline void print_array(uint8_t * array, size_t length);
 static inline void print_bits(uint64_t x, register uint64_t Nbit);
 
-void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2);
+void xor_of_two_blocks_DES(uint8_t* block_1, uint8_t* block_2);
 
 #endif   // DES_H

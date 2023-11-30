@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <memory.h>
 #include "des.h"
-#include "../AES/aes.h"
 
 #define LSHIFT_28BIT(x, L) ((((x) << (L)) | ((x) >> (-(L) & 27))) & (((uint64_t)1 << 32) - 1))
 
@@ -128,14 +126,14 @@ size_t DES(uint8_t * to, uint8_t mode, uint64_t * keys48b, uint8_t * from, size_
 void feistel_cipher(uint8_t mode, uint32_t * N1, uint32_t * N2, uint64_t * keys48b) {
     switch(mode) {
         case 'E': case 'e': {
-            for (signed char round = 0; round < 16; ++round) {
+            for (int8_t round = 0; round < 16; ++round) {
                 round_feistel_cipher(N1, N2, keys48b[round]);
             }
             swap(N1, N2);
             break;
         }
         case 'D': case 'd': {
-            for (signed char round = 15; round >= 0; --round) {
+            for (int8_t round = 15; round >= 0; --round) {
                 round_feistel_cipher(N1, N2, keys48b[round]);
             }
             swap(N1, N2);
@@ -329,4 +327,11 @@ static inline void print_bits(uint64_t x, register uint64_t Nbit) {
     for (Nbit = (uint64_t)1 << (Nbit - 1); Nbit > 0x00; Nbit >>= 1)
         printf("%d", (x & Nbit) ? 1 : 0);
     putchar('\n');
+}
+
+void xor_of_two_blocks(uint8_t* block_1, uint8_t* block_2) {
+    for (int i = 0; i < 8; i++) {
+        block_1[i] ^= block_2[i];
+    }
+    return;
 }
