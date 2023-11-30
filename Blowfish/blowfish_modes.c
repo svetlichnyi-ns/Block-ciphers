@@ -5,10 +5,15 @@
 #include <time.h>
 #include <sys/time.h>
 #include "blowfish.h"
-#include "../AES/aes.h"
 
-void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of_key,
-                               int user_choice, int NumOfExperiments, KPI* Blowfish_results) {
+void xor_of_two_blocks(BYTE* block_1, BYTE* block_2) {
+    for (int i = 0; i < BLOWFISH_BLOCK_SIZE; i++) {
+        block_1[i] ^= block_2[i];
+    }
+    return;
+}
+
+int main(int argc, char* argv[]) {
 
     srand(0);
 
@@ -17,17 +22,26 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
     BYTE initialize_vector[BLOWFISH_BLOCK_SIZE];
     BYTE counter[BLOWFISH_BLOCK_SIZE];
     BYTE tmp_buf[BLOWFISH_BLOCK_SIZE];
-    BYTE feedback[BLOWFISH_BLOCK_SIZE]; 
+    BYTE feedback[BLOWFISH_BLOCK_SIZE];
     
     BLOWFISH_KEY key;
     int pass = 1;
     
+    unsigned long int number_of_blocks;
+    number_of_blocks = atoi(argv[1]);
     unsigned long int length_of_message = number_of_blocks * BLOWFISH_BLOCK_SIZE;
 
     BYTE* message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* cyphertext = (BYTE*) calloc (length_of_message, sizeof(BYTE));
     BYTE* decrypted_message = (BYTE*) calloc (length_of_message, sizeof(BYTE));
+
+    int length_of_key;
+    length_of_key = atoi(argv[2]);
     BYTE* user_key = (BYTE*) calloc (length_of_key, sizeof(BYTE));
+
+    int user_choice;
+    user_choice = atoi(argv[3]);
+    int NumOfExperiments = (int) 1e3;
 
     double* encryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
     double* decryption_times = (double*) calloc (NumOfExperiments, sizeof(double));
@@ -258,7 +272,7 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
 
             default:
                 printf("Error! This mode was not found!\n");
-                return;
+                return -1;
         }
 
         pass = pass && !memcmp(message, decrypted_message, length_of_message);
@@ -289,6 +303,14 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
     double encryption_std = sqrt(sum_encryption / (NumOfExperiments - 1));
     double decryption_std = sqrt(sum_decryption / (NumOfExperiments - 1));
 
+    // PRINT THE RESULTS
+    printf("Encryption: %f ± %f (milliseconds)\n", encryption_mean_time, encryption_std);
+    printf("Decryption: %f ± %f (milliseconds)\n", decryption_mean_time, decryption_std);
+
+    // CHECK THE RESULTS
+    if (pass) printf("TESTS PASSED!!!\n");
+    else printf("TESTS FAILED(\n");
+    
     free(message);
     free(cyphertext);
     free(decrypted_message);
@@ -297,16 +319,5 @@ void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of
     free(encryption_times);
     free(decryption_times);
 
-    // CHECK THE RESULTS
-    if (pass) printf("BLOWFISH: TESTS PASSED!!!\n");
-    else printf("BLOWFISH: TESTS FAILED(\n");
-
-    // RETURN THE RESULTS
-    Blowfish_results->encryption_mean_time = encryption_mean_time;
-    Blowfish_results->encryption_std = encryption_std;
-
-    Blowfish_results->decryption_mean_time = decryption_mean_time;
-    Blowfish_results->decryption_std = decryption_std;
-
-    return;
+    return 0;
 }

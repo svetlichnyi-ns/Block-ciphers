@@ -10,7 +10,6 @@
 #define BLOWFISH_H
 
 /*************************** HEADER FILES ***************************/
-#include "../AES/aes.h"
 #include <stddef.h>
 
 /****************************** MACROS ******************************/
@@ -24,8 +23,6 @@ typedef struct {
    WORD p[18];
    WORD s[4][256];
 } BLOWFISH_KEY;
-
-void Blowfish_time_performance(unsigned long int number_of_blocks, int length_of_key, int user_choice, int NumOfExperiments, KPI* Blowfish_results);
 
 /*********************** FUNCTION DECLARATIONS **********************/
 void blowfish_key_setup(const BYTE user_key[], BLOWFISH_KEY *keystruct, size_t len);

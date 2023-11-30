@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "blowfish.h"
-#include "../AES/aes.h"
 
 /****************************** MACROS ******************************/
 #define F(x,t) t = keystruct->s[0][(x) >> 24]; \
